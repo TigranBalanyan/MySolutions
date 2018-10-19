@@ -35,9 +35,9 @@ namespace SalesInfoCall
             {
                 using (OrganizationServiceProxy serviceProxy = new OrganizationServiceProxy(OrganizationUri, null, credentials, null))
                 {
-                    IOrganizationService service = (IOrganizationService)serviceProxy;
+                    IOrganizationService service = serviceProxy;
 
-                    OrganizationRequest request = new OrganizationRequest("new_sales_info_retrieval");
+                    OrganizationRequest request = new OrganizationRequest("****");
 
                     OrganizationResponse response = service.Execute(request);
                 }
