@@ -1,51 +1,53 @@
-﻿using Microsoft.Xrm.Sdk;
-using Microsoft.Xrm.Sdk.Client;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.IO;
-using System.Linq;
 using System.Net;
-using System.Security.Cryptography;
 using System.ServiceModel.Description;
-using System.Text;
-using System.Threading.Tasks;
+using Microsoft.Xrm.Sdk;
+using Microsoft.Xrm.Sdk.Client;
 
 namespace SalesInfoCall 
 {
-    partial class SalesInfoCall
+    class SalesInfoCall
     {
         static void Main(string[] args)
         {
-            while (true)
+            do
             {
-               
                 CredentialsRepository userCredentials = new CredentialsRepository();
                 if (userCredentials.GetUsername() == string.Empty || userCredentials.GetPassword() == string.Empty)
                 {
                     Console.WriteLine("Enter your Username: ");
                     userCredentials.SaveUsername(Console.ReadLine());
-                    string password;
+
+                    Console.WriteLine("Enter your Password: ");
+                    string password = string.Empty;
+
                     do
                     {
-                        password = Console.ReadKey(true);
-
-                        // Backspace Should Not Work
-                        if (key.Key != ConsoleKey.Backspace)
+                        ConsoleKeyInfo key = Console.ReadKey();
+                        // // Backspace Should Not Work
+                        if (key.Key != ConsoleKey.Backspace && key.Key != ConsoleKey.Enter)
                         {
-                            pass += key.KeyChar;
+                            password += key.KeyChar;
                             Console.Write("*");
                         }
                         else
                         {
-                            Console.Write("\b");
+                            if (key.Key == ConsoleKey.Backspace && password.Length > 0)
+                            {
+                                password.Substring(0, (password.Length - 1));
+                                Console.Write("\b \b");
+                            }
+                            else if (key.Key == ConsoleKey.Enter)
+                            {
+                                break;
+                            }
                         }
-                    }
-                    Console.WriteLine("Enter your Password: ");
-                    userCredentials.SavePassword(password);
-                }
+                    } while (true);
 
-           //     Console.WriteLine(userData.GetUsername());
-            //    Console.WriteLine(userData.GetPassword());
+                    userCredentials.SavePassword(password);
+                    Console.WriteLine();
+                }
 
                 string URL = string.Empty;
                 string path = Directory.GetParent(System.Reflection.Assembly.GetExecutingAssembly().Location).FullName;
@@ -57,22 +59,15 @@ namespace SalesInfoCall
                 }
                 else
                 {
-                //  File.WriteAllText(fileName, string.Empty);
                     Console.WriteLine("Enter your organization URL : ");
                     URL = Console.ReadLine();
                     File.WriteAllText(fileName, URL);
                 }
 
-            //  Console.WriteLine(URL);
-
-
                 var credentials = new ClientCredentials();
                 credentials.UserName.UserName = userCredentials.GetUsername();
                 credentials.UserName.Password = userCredentials.GetPassword();
 
-               // Console.WriteLine(URL);
-            //    Console.WriteLine(credentials.UserName.UserName);
-              //  Console.WriteLine(credentials.UserName.Password);
                 try
                 {
                     ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
@@ -81,13 +76,12 @@ namespace SalesInfoCall
                     using (OrganizationServiceProxy serviceProxy = new OrganizationServiceProxy(OrganizationUri, null, credentials, null))
                     {
                         IOrganizationService service = (IOrganizationService)serviceProxy;
-                        //Console.WriteLine("ancav!");
                         OrganizationRequest request = new OrganizationRequest("new_sales_info_retrieval");
 
                         OrganizationResponse response = service.Execute(request);
                     }
                 }
-                catch(Exception)
+                catch (Exception)
                 {
                     Console.WriteLine("Please Check connection, or try to enter your credentials again!");
                     userCredentials.ClearPassword();
@@ -95,9 +89,9 @@ namespace SalesInfoCall
                     File.WriteAllText(fileName, string.Empty);
                     continue;
                 }
-
                 break;
-            }
+
+            } while (true);
         }
     }
 }
