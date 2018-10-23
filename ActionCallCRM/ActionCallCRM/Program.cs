@@ -19,14 +19,29 @@ namespace SalesInfoCall
             while (true)
             {
                
-                CredentialsRepository userData = new CredentialsRepository();
-                if (userData.GetUsername() == string.Empty || userData.GetPassword() == string.Empty)
+                CredentialsRepository userCredentials = new CredentialsRepository();
+                if (userCredentials.GetUsername() == string.Empty || userCredentials.GetPassword() == string.Empty)
                 {
                     Console.WriteLine("Enter your Username: ");
-                    userData.SaveUsername(Console.ReadLine());
+                    userCredentials.SaveUsername(Console.ReadLine());
+                    string password;
+                    do
+                    {
+                        password = Console.ReadKey(true);
 
+                        // Backspace Should Not Work
+                        if (key.Key != ConsoleKey.Backspace)
+                        {
+                            pass += key.KeyChar;
+                            Console.Write("*");
+                        }
+                        else
+                        {
+                            Console.Write("\b");
+                        }
+                    }
                     Console.WriteLine("Enter your Password: ");
-                    userData.SavePassword(Console.ReadLine());
+                    userCredentials.SavePassword(password);
                 }
 
            //     Console.WriteLine(userData.GetUsername());
@@ -34,7 +49,7 @@ namespace SalesInfoCall
 
                 string URL = string.Empty;
                 string path = Directory.GetParent(System.Reflection.Assembly.GetExecutingAssembly().Location).FullName;
-                string fileName = Path.Combine(path, "text.txt");
+                string fileName = Path.Combine(path, "URL.txt");
 
                 if (File.Exists(fileName) && File.ReadAllText(fileName).Length != 0)
                 {
@@ -42,31 +57,31 @@ namespace SalesInfoCall
                 }
                 else
                 {
-                    File.WriteAllText(fileName, string.Empty);
+                //  File.WriteAllText(fileName, string.Empty);
                     Console.WriteLine("Enter your organization URL : ");
                     URL = Console.ReadLine();
                     File.WriteAllText(fileName, URL);
                 }
 
-              //  Console.WriteLine(URL);
+            //  Console.WriteLine(URL);
 
 
                 var credentials = new ClientCredentials();
-                credentials.UserName.UserName = userData.GetUsername();
-                credentials.UserName.Password = userData.GetPassword();
+                credentials.UserName.UserName = userCredentials.GetUsername();
+                credentials.UserName.Password = userCredentials.GetPassword();
 
-                Console.WriteLine(URL);
-                Console.WriteLine(credentials.UserName.UserName);
-                Console.WriteLine(credentials.UserName.Password);
+               // Console.WriteLine(URL);
+            //    Console.WriteLine(credentials.UserName.UserName);
+              //  Console.WriteLine(credentials.UserName.Password);
                 try
                 {
-                  //  ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+                    ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
                     Uri OrganizationUri = new Uri(URL);
 
                     using (OrganizationServiceProxy serviceProxy = new OrganizationServiceProxy(OrganizationUri, null, credentials, null))
                     {
                         IOrganizationService service = (IOrganizationService)serviceProxy;
-                        Console.WriteLine("ancav!");
+                        //Console.WriteLine("ancav!");
                         OrganizationRequest request = new OrganizationRequest("new_sales_info_retrieval");
 
                         OrganizationResponse response = service.Execute(request);
@@ -74,9 +89,9 @@ namespace SalesInfoCall
                 }
                 catch(Exception)
                 {
-                    Console.WriteLine("Please Check connection, or try again!");
-                    userData.ClearPassword();
-                    userData.ClearUsername();
+                    Console.WriteLine("Please Check connection, or try to enter your credentials again!");
+                    userCredentials.ClearPassword();
+                    userCredentials.ClearUsername();
                     File.WriteAllText(fileName, string.Empty);
                     continue;
                 }

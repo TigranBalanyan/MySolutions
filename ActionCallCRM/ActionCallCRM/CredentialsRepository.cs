@@ -5,7 +5,7 @@ namespace SalesInfoCall
     internal class CredentialsRepository
     {
 
-        private const string PasswordName = "ServerPassword";
+        private const string Password = "ServerPassword";
         private const string Username = "ServerUsername";
 
         public void SavePassword(string password)
@@ -13,7 +13,7 @@ namespace SalesInfoCall
             using (var cred = new Credential())
             {
                 cred.Password = password;
-                cred.Target = PasswordName;
+                cred.Target = Password;
                 cred.Type = CredentialType.Generic;
                 cred.PersistanceType = PersistanceType.LocalComputer;
                 cred.Save();
@@ -24,21 +24,11 @@ namespace SalesInfoCall
         {
             using (var cred = new Credential())
             {
-                cred.Target = PasswordName;
+                cred.Target = Password;
                 cred.Load();
                 return cred.Password;
             }
         }
-
-        public void ClearPassword()
-        {
-            using (var cred = new Credential())
-            {
-                cred.Target = PasswordName;
-                cred.Delete();
-            }
-        }
-
 
         public void SaveUsername(string username)
         {
@@ -59,6 +49,15 @@ namespace SalesInfoCall
                 cred.Target = Username;
                 cred.Load();
                 return cred.Username;
+            }
+        }
+
+        public void ClearPassword()
+        {
+            using (var cred = new Credential())
+            {
+                cred.Target = Password;
+                cred.Delete();
             }
         }
 
